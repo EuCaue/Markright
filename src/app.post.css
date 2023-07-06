@@ -1,0 +1,31 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*place global styles here */
+html,
+body {
+	@apply h-full overflow-hidden;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+	font-size: revert;
+	font-weight: revert;
+}
+
+[contenteditable='true'] {
+	outline: none;
+}
+
+/* .hljs { */
+/* 	@apply variant-filled-surface; */
+/* } */
+
+#preview ul {
+	list-style: inside;
+}
