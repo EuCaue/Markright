@@ -10,10 +10,10 @@
 		IconPhoto,
 		IconSquareCheck
 	} from '@tabler/icons-svelte';
-	import { sanitize } from 'isomorphic-dompurify';
 	import hljs from 'highlight.js';
 	import md from '$lib/stores/md';
 	import { clipboard, popup, type PopupSettings } from '@skeletonlabs/skeleton';
+	import DOMPurify from 'isomorphic-dompurify';
 	let editorContentHTML: HTMLParagraphElement;
 	let previewHTML: HTMLElement;
 	let mdValue = '';
@@ -38,7 +38,7 @@
 			return `<pre><code class="hljs ${validLanguage}">${highlightedCode}</code></pre>`;
 		};
 
-		renderer.blockquote = (quote) => {
+		renderer.blockquote = (quote = '') => {
 			return `<blockquote class="blockquote">${quote}</blockquote>`;
 		};
 
@@ -53,7 +53,11 @@
 
 	function handleSelection(type: string, heading?: number) {
 		const selection = window.getSelection();
-		const isInsideEditor = selection?.anchorNode?.parentElement?.id || selection?.anchorNode?.id;
+		const isInsideEditor =
+			selection?.anchorNode?.parentElement?.id ||
+			selection?.anchorNode?.id ||
+			selection?.extentNode?.parentElement?.parentElement?.id;
+		console.log(selection?.extentNode?.parentElement?.parentElement?.id);
 		if (isInsideEditor !== 'editor') return;
 		let headingString = '';
 		let modifiedText = '';
@@ -162,11 +166,8 @@ ${line.trim()}
 
 	onMount(async () => {
 		editorContentHTML.focus();
-		console.log($md.html);
-		if ($md.html !== '' || $md.html !== 'undefined') {
-			editorContentHTML.innerHTML = $md.html;
-			previewHTML.innerHTML = renderMarkdown($md.text);
-		}
+		editorContentHTML.innerHTML = $md.html;
+		previewHTML.innerHTML = renderMarkdown($md.text);
 		await import(`../../node_modules/highlight.js/styles/${$markdownColorscheme.theme}.css`).catch(
 			(err) => {
 				console.error(`CSS can not be imported ${err}`);
@@ -176,7 +177,9 @@ ${line.trim()}
 
 	// TODO: maybe transform this into reactive block, idk
 	afterUpdate(() => {
-		md.set({ text: editorContentHTML.innerText, html: editorContentHTML.innerHTML });
+		md.update(() => {
+			return { text: editorContentHTML.innerText, html: editorContentHTML.innerHTML };
+		});
 		const title = findTitle(editorContentHTML);
 		if (title) {
 			window.document.title = `Markright - ${title}`;
@@ -192,9 +195,7 @@ ${line.trim()}
 </script>
 
 <main class="grid-cols-2 grid w-screen h-screen place-items-center relative z-10">
-	<ul
-		class="breadcrumb-nonresponsive fixed bottom-[84.8%] lg:bottom-[86.8%] z-10 variant-glass-primary w-2/4 left-0"
-	>
+	<ul class="breadcrumb-nonresponsive fixed top-20 z-10 variant-glass-primary w-2/4 left-0">
 		{#each buttonData as { value, type }}
 			<li class="crumb" title={`${type.toUpperCase()}`}>
 				{#if type === 'heading'}
@@ -279,6 +280,6 @@ ${line.trim()}
 		class="w-[100%] min-h-screen h-max variant-glass-surface text-center"
 		bind:this={previewHTML}
 	>
-		{@html sanitize(renderMarkdown($md.text))}
+		{@html DOMPurify.sanitize(renderMarkdown(mdValue))}
 	</section>
 </main>

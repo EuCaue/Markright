@@ -1,7 +1,7 @@
 <script lang="ts">
 	import markdownColorscheme from '$lib/stores/markdownColorscheme';
 	import { marked } from 'marked';
-	import { sanitize } from 'isomorphic-dompurify';
+	import DOMPurify from 'isomorphic-dompurify';
 	import hljs from 'highlight.js';
 	import { ListBox, ListBoxItem, popup, type PopupSettings } from '@skeletonlabs/skeleton';
 	import { IconChevronDown, IconQuestionMark } from '@tabler/icons-svelte';
@@ -51,7 +51,8 @@ console.log("Have a nice day!")
 		}
 		const newThemeLink = document.createElement('link');
 		newThemeLink.rel = 'stylesheet';
-		newThemeLink.href = `../../../node_modules/highlight.js/styles/${theme}.css`;
+
+		newThemeLink.href = `/highlight.js/styles/${theme}.css`;
 		document.head.appendChild(newThemeLink);
 	}
 </script>
@@ -93,7 +94,7 @@ console.log("Have a nice day!")
 				</ListBox>
 
 				<div class="w-fit h-10 absolute top-0 right-0" data-popup="popupFeatured">
-					{@html sanitize(renderMarkdown(markdownPreviewColorscheme))}
+					{@html DOMPurify.sanitize(renderMarkdown(markdownPreviewColorscheme))}
 				</div>
 			</div>
 		</li>

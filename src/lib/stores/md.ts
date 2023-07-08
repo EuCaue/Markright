@@ -6,7 +6,9 @@ export interface IMarkdownValues {
 }
 
 const defaultValue: IMarkdownValues = { text: '', html: '' };
-const initialValue = browser ? JSON.parse(window.localStorage.getItem('md')) ?? '' : defaultValue;
+const initialValue = browser
+	? JSON.parse(window.localStorage.getItem('md')) ?? defaultValue
+	: defaultValue;
 
 console.log(initialValue);
 
