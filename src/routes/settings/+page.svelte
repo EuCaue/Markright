@@ -46,12 +46,10 @@ console.log("Have a nice day!")
 	async function previewColorscheme(theme: string) {
 		const themeLink = document.querySelector(`link[href*="${theme}.css"]`);
 		if (themeLink) {
-			console.count();
 			themeLink.remove();
 		}
 		const newThemeLink = document.createElement('link');
 		newThemeLink.rel = 'stylesheet';
-
 		newThemeLink.href = `/highlight.js/styles/${theme}.css`;
 		document.head.appendChild(newThemeLink);
 	}

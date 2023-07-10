@@ -22,10 +22,15 @@ h6 {
 	outline: none;
 }
 
-/* .hljs { */
-/* 	@apply variant-filled-surface; */
-/* } */
-
 #preview ul {
 	list-style: inside;
+}
+
+#preview ol {
+	list-style: auto;
+	padding: revert;
+}
+
+#preview ul:has(input) {
+	list-style: none;
 }

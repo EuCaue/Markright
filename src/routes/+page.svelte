@@ -18,13 +18,14 @@
 	let previewHTML: HTMLElement;
 	let mdValue = '';
 
-	//  TODO: make ul and ol
 	const buttonData = [
 		{ value: 'B', type: 'bold' },
 		{ value: 'I', type: 'italic' },
 		{ value: 'S', type: 'strike' },
 		{ value: 'H', type: 'heading' },
 		{ value: 'Q', type: 'blockquote' },
+		{ value: '1.', type: 'ordered-list' },
+		{ value: '-', type: 'unordered-list' },
 		{ value: '', type: 'image' },
 		{ value: '', type: 'checkbox' },
 		{ value: '', type: 'codeblock' }
@@ -57,13 +58,14 @@
 			selection?.anchorNode?.parentElement?.id ||
 			selection?.anchorNode?.id ||
 			selection?.extentNode?.parentElement?.parentElement?.id;
-		console.log(selection?.extentNode?.parentElement?.parentElement?.id);
 		if (isInsideEditor !== 'editor') return;
 		let headingString = '';
 		let modifiedText = '';
+		let indexOrderedList = 0;
 		let modifiedLines: string[];
 		const selectedText = selection!.toString();
 		const lines = selectedText.split('\n');
+		console.log(lines);
 
 		if (lines.length === 1) {
 			switch (type) {
@@ -100,6 +102,13 @@ ${selectedText.trim()}
 				case 'blockquote':
 					modifiedText = `> ${selectedText.trim()}`;
 					break;
+
+				case 'ordered-list':
+					modifiedText = `1. ${selectedText.trim()}`;
+					break;
+				case 'unordered-list':
+					modifiedText = `- ${selectedText.trim()}`;
+					break;
 				default:
 					break;
 			}
@@ -134,13 +143,26 @@ ${line.trim()}
 `;
 						case 'blockquote':
 							return `> ${line.trim()}`;
+
+						case 'ordered-list':
+							indexOrderedList++;
+							return `${indexOrderedList}. ${line.trim()}`;
+
+						case 'unordered-list':
+							return `- ${line.trim()}`;
 						default:
 							break;
 					}
 				}
 				return line;
 			});
-			modifiedText = modifiedLines.join('\n');
+
+			// modifiedText = modifiedLines.join('\n') ;
+			modifiedText =
+				type === 'unordered-list'
+					? modifiedLines.filter((line) => line.trim() !== '').join('\n')
+					: modifiedLines.join('\n');
+			// modifiedText = modifiedLines.filter((line) => line.trim() !== '').join('\n');
 		}
 		document.execCommand('insertText', undefined, modifiedText);
 		// mdContentHTML.innerHTML += modifiedText;
@@ -200,14 +222,16 @@ ${line.trim()}
 			<li class="crumb" title={`${type.toUpperCase()}`}>
 				{#if type === 'heading'}
 					<select
-						class="btn bg-transparent border-none lg:hover:variant-soft-primary transition-all duration-300"
+						class="btn btn-icon bg-transparent border-none lg:hover:variant-soft-primary transition-all duration-300 cursor-pointer"
 						role="listbox"
 						on:change={(e) => {
 							handleSelection('heading', e.target.selectedIndex + 1);
 						}}
 					>
 						{#each { length: 6 } as _, index}
-							<option value={`h${index + 1}`}>{`h${index + 1}`}</option>
+							<option class="variant-filled-surface lg:hover:cursor-pointer" value={`h${index + 1}`}
+								>{`h${index + 1}`}</option
+							>
 						{/each}
 					</select>
 				{:else}
